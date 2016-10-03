@@ -124,7 +124,7 @@ module.exports = function() {
       var type = action && action.type || ''
       var data = action && action.data
       if (type === 'ADD') {
-        state.push(data)
+        state = state.concat(data)
         return state
       }
       else {
