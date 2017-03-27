@@ -120,4 +120,50 @@ module.exports = function() {
     )
   })
 
+  test('should call listeners based on subscription keys', function(){
+    function ear(state) {
+      assert.deepEqual(state, {tasks:[1,2,3,4]})
+    }
+    ear.keys = ['tasks']
+
+    function projects (state, action) {
+      var type = action && action.type || ''
+      var data = action && action.data
+      if (type === 'ADD_PROJECT') {
+        state.push(data)
+        return state
+      }
+      else {
+        return [1,2,3]
+      }
+    }
+
+    function tasks (state, action) {
+      var type = action && action.type || ''
+      var data = action && action.data
+      if (type === 'ADD_TASK') {
+        state.push(data)
+        return state
+      }
+      else {
+        return [1,2,3]
+      }
+    }
+
+    var action = {
+      type: 'ADD_TASK',
+      data: 4
+    }
+
+    var store = redeux(tasks, projects)
+    store.subscribe(ear)
+    store.dispatch(action)
+    assert.deepEqual(
+      {
+        tasks:[1,2,3,4],
+        projects: [1,2,3]
+      },
+      store.getState()
+    )
+  })
 }()

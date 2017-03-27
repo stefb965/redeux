@@ -40,11 +40,26 @@ module.exports = function store () {
       console.error('action.type must be a "string"')
     }
     var currentState = getState()
+    var name
+    var keys
+    var tempState
     reducers.forEach(function (r) {
-      state[r.name] = r(currentState[r.name], action)
-    })
-    listeners.forEach(function (l) {
-      l(state)
+      name = r.name
+      state[name] = r(currentState[name], action)
+      listeners.forEach(function (l) {
+        if (l.keys && l.keys.length) {
+          keys = l.keys
+          keys.forEach(function (k) {
+            if (name === k) {
+              tempState = {}
+              tempState[name] = state[name]
+              l(tempState)
+            }
+          })
+        } else {
+          l(state)
+        }
+      })
     })
   }
 
